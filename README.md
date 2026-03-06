@@ -6,6 +6,7 @@ A fully automated Azure environment for demonstrating **Azure SRE Agent** capabi
 
 - **Azure Kubernetes Service (AKS)** with a multi-pod e-commerce demo application
 - **8 breakable scenarios** for demonstrating SRE Agent diagnosis
+- **Azure SRE Agent** deployed automatically via Bicep for AI-powered diagnostics
 - **Full observability stack**: Log Analytics, Application Insights, Managed Grafana
 - **Ready-to-use scripts** for deployment and teardown
 - **Dev container** for consistent development experience
@@ -33,13 +34,13 @@ az login --use-device-code
 
 > 💡 **Tip**: Type `menu` in the terminal to see all available commands including break scenarios, fix commands, and kubectl shortcuts.
 
-### Create SRE Agent (Portal Only)
+### Create SRE Agent
 
-> ⚠️ **Note**: Azure SRE Agent does not support programmatic deployment yet. You must create it manually in the Azure Portal.
+SRE Agent is deployed automatically via Bicep (`Microsoft.App/agents@2025-05-01-preview`) as part of `deploy.ps1`. The deploying user is automatically assigned the **SRE Agent Administrator** role.
 
-1. Go to the [SRE Agent Portal](https://aka.ms/sreagent/portal)
-2. Click **Create** and select the deployed resource group (e.g., `rg-srelab-eastus2`)
-3. Configure it to monitor the AKS cluster
+After deployment, manage the agent at the [SRE Agent Portal](https://aka.ms/sreagent/portal).
+
+> 💡 To skip SRE Agent deployment, set `deploySreAgent = false` in `infra/bicep/main.bicepparam`.
 
 ### Validate Deployment
 
@@ -76,7 +77,7 @@ fix-all
 
 After deployment:
 
-1. **Create an SRE Agent** in Azure Portal (if not already done)
+1. **Open the SRE Agent Portal** — the URL is displayed in deployment output, or visit [aka.ms/sreagent/portal](https://aka.ms/sreagent/portal)
 2. **Connect it to your resources** (AKS, Log Analytics)
 3. **Ask it to diagnose**:
    - "Why are pods crashing in the pets namespace?"

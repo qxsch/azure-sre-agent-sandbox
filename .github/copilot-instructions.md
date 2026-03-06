@@ -89,10 +89,11 @@ Type `menu` in the terminal to see all available commands. Key shortcuts:
 .\scripts\deploy.ps1 -Location eastus2 -Yes
 ```
 
-### Create SRE Agent (Portal Only)
-Azure SRE Agent does not support programmatic deployment. Create manually:
-1. Go to: https://aka.ms/sreagent/portal
-2. Click "Create" and select the resource group (e.g., `rg-srelab-eastus2`)
+### SRE Agent Deployment
+SRE Agent is now deployed automatically via Bicep (`Microsoft.App/agents@2025-05-01-preview`).
+Set `deploySreAgent = true` in parameters (default). To manage the agent after deployment:
+- Portal: https://aka.ms/sreagent/portal
+- The deploying user is automatically assigned SRE Agent Administrator role
 
 ### Apply Breakable Scenario
 ```bash

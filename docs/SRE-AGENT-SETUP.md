@@ -23,7 +23,20 @@ Before creating an SRE Agent, ensure you have:
 
 ## Step 1: Create an SRE Agent
 
-### Via Azure Portal
+### Automated via Bicep (Default)
+
+The SRE Agent is deployed automatically as part of `scripts/deploy.ps1` using the `Microsoft.App/agents@2025-05-01-preview` resource type. The deployment:
+
+- Creates the SRE Agent resource
+- Creates a user-assigned managed identity
+- Assigns Log Analytics Reader, Reader, and Contributor roles
+- Grants the deploying user the **SRE Agent Administrator** role
+
+To skip SRE Agent deployment, set `deploySreAgent = false` in `infra/bicep/main.bicepparam`.
+
+### Via Azure Portal (Alternative)
+
+You can also create the agent manually:
 
 1. Navigate to [Azure Portal](https://portal.azure.com)
 2. Search for "SRE Agent" in the search bar
@@ -46,6 +59,8 @@ When you create an SRE Agent, Azure automatically provisions:
 ## Step 2: Configure Agent Permissions
 
 The SRE Agent needs access to your Azure resources to diagnose and **remediate** issues.
+
+> **Note**: When deployed via Bicep (default), the agent's managed identity is automatically assigned Reader, Contributor, and Log Analytics Reader roles on the deployment resource group. The script below grants additional AKS-specific roles.
 
 ### Grant Access to Demo Resources
 

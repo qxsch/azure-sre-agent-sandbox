@@ -4,10 +4,9 @@
 
 .DESCRIPTION
     This script deploys all Azure infrastructure needed for the SRE Agent demo,
-    including AKS, Container Registry, Key Vault, and observability tools.
+    including AKS, Container Registry, Key Vault, observability tools, and
+    Azure SRE Agent (Microsoft.App/agents@2025-05-01-preview).
     It uses device code authentication by default for dev container support.
-
-    Note: Azure SRE Agent must be created manually via Azure Portal after deployment.
 
 .PARAMETER Location
     Azure region for deployment. Must be an SRE Agent supported region.
@@ -112,6 +111,7 @@ Write-Host @"
 ║  • Azure Container Registry                                                  ║
 ║  • Observability stack (Log Analytics, App Insights, Grafana)               ║
 ║  • Key Vault for secrets management                                         ║
+║  • Azure SRE Agent for AI-powered diagnostics                               ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
 "@ -ForegroundColor Cyan
@@ -271,6 +271,11 @@ try {
         Write-Host "  • Incident Webhook: $($outputs.defaultActionGroupHasWebhook.value)" -ForegroundColor White
     }
 
+    if ($outputs.sreAgentId.value) {
+        Write-Host "  • SRE Agent:        $($outputs.sreAgentName.value)" -ForegroundColor White
+        Write-Host "  • SRE Agent Portal: $($outputs.sreAgentPortalUrl.value)" -ForegroundColor White
+    }
+
     # Save outputs to file
     $outputsFile = Join-Path $PSScriptRoot "deployment-outputs.json"
     $deployment.properties.outputs | ConvertTo-Json -Depth 10 | Set-Content $outputsFile
@@ -365,10 +370,8 @@ Write-Host @"
 ║    • AKS Cluster:    $($aksName.PadRight(44))║
 ║    • Store Front:    $($siteUrlDisplay.PadRight(44))║
 ║                                                                              ║
-║  ⚠️  SRE Agent Setup Required (Portal Only):                                 ║
-║    Azure SRE Agent does not support programmatic creation yet.               ║
-║    1. Go to: https://aka.ms/sreagent/portal                                  ║
-║    2. Click "Create" and select resource group: $resourceGroupName           ║
+║  ✅ SRE Agent: Deployed automatically via Bicep                              ║
+║    Portal: https://aka.ms/sreagent/portal                                    ║
 ║                                                                              ║
 ║  Quick Start (after SRE Agent setup):                                        ║
 ║    1. Open the store: $siteUrlDisplay

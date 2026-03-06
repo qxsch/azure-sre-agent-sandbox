@@ -14,6 +14,9 @@ param deployObservability = true
 // Baseline alert rules
 param deployAlerts = true
 
+// Deploy Azure SRE Agent (programmatic deployment now supported)
+param deploySreAgent = true
+
 // Default action group for incident routing (add webhook at deploy time)
 param deployActionGroup = false
 
