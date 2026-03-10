@@ -95,7 +95,8 @@ alias fix-extras='kubectl delete deployment cpu-stress-test resource-hog unhealt
 
 # Site URL command
 alias site='echo "Store Front: http://$(kubectl get svc store-front -n pets -o jsonpath=\"{.status.loadBalancer.ingress[0].ip}\" 2>/dev/null || echo "pending...")"'
-
+# SRE Agent portal
+alias sre-agent='echo "SRE Agent Portal: https://aka.ms/sreagent/portal"'
 # Helpful functions
 function kwatch() {
     kubectl get pods -n ${1:-pets} -w
@@ -156,6 +157,11 @@ function site {
     else { Write-Host "Store Front IP not ready yet..." -ForegroundColor Yellow }
 }
 
+# SRE Agent portal
+function sre-agent {
+    Write-Host "SRE Agent Portal: https://aka.ms/sreagent/portal" -ForegroundColor Cyan
+}
+
 # Menu/help function
 function menu {
     Write-Host @"
@@ -168,6 +174,7 @@ function menu {
 ║    deploy                      - Deploy the infrastructure                   ║
 ║    destroy                     - Tear down the infrastructure                ║
 ║    site                        - Show the store front URL                    ║
+║    sre-agent                   - Show SRE Agent portal URL                   ║
 ║    menu                        - Show this help menu                         ║
 ║                                                                              ║
 ║  Kubernetes Shortcuts (default namespace: pets):                             ║

@@ -12,7 +12,10 @@ using 'main.bicep'
 param deployObservability = true
 
 // Baseline alert rules
-param deployAlerts = true
+param deployAlerts = false
+
+// Deploy Azure SRE Agent (programmatic deployment now supported)
+param deploySreAgent = true
 
 // Default action group for incident routing (add webhook at deploy time)
 param deployActionGroup = false

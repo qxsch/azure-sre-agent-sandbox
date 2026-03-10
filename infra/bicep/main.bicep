@@ -29,7 +29,10 @@ param location string = 'eastus2'
 param deployObservability bool = true
 
 @description('Deploy baseline Azure Monitor alert rules for AKS and app telemetry')
-param deployAlerts bool = true
+param deployAlerts bool = false
+
+@description('Deploy Azure SRE Agent for AI-powered diagnostics and remediation')
+param deploySreAgent bool = true
 
 @description('Deploy default Action Group for alert notifications and incident routing')
 param deployActionGroup bool = false
@@ -97,11 +100,12 @@ var names = {
   acr: 'acr${workloadName}${take(uniqueSuffix, 6)}'
   logAnalytics: 'log-${workloadName}'
   appInsights: 'appi-${workloadName}'
-  grafana: 'grafana-${workloadName}'
+  grafana: 'grafana-${workloadName}-${take(uniqueSuffix, 6)}'
   prometheus: 'prometheus-${workloadName}'
   keyVault: 'kv-${workloadName}-${take(uniqueSuffix, 6)}'
   managedIdentity: 'id-${workloadName}'
   vnet: 'vnet-${workloadName}'
+  sreAgent: 'sre-${workloadName}'
 }
 
 // =============================================================================
@@ -199,6 +203,21 @@ module keyVault 'modules/key-vault.bicep' = {
   }
 }
 
+// Azure SRE Agent (optional)
+module sreAgent 'modules/sre-agent.bicep' = if (deploySreAgent) {
+  scope: resourceGroup
+  name: 'deploy-sre-agent'
+  params: {
+    agentName: names.sreAgent
+    location: location
+    tags: tags
+    accessLevel: 'High'
+    appInsightsAppId: appInsights.outputs.appId
+    appInsightsConnectionString: appInsights.outputs.connectionString
+    uniqueSuffix: uniqueSuffix
+  }
+}
+
 // Observability Stack - Managed Grafana and Prometheus (optional)
 module observability 'modules/observability.bicep' = if (deployObservability) {
   scope: resourceGroup
@@ -255,12 +274,21 @@ output appInsightsConnectionString string = appInsights.outputs.connectionString
 output keyVaultUri string = keyVault.outputs.vaultUri
 output grafanaDashboardUrl string = deployObservability ? observability!.outputs.grafanaEndpoint : ''
 output azureMonitorWorkspaceId string = deployObservability ? observability!.outputs.azureMonitorWorkspaceId : ''
-output prometheusDataCollectionEndpointId string = deployObservability ? observability!.outputs.dataCollectionEndpointId : ''
+output prometheusDataCollectionEndpointId string = deployObservability
+  ? observability!.outputs.dataCollectionEndpointId
+  : ''
 output prometheusDataCollectionRuleId string = deployObservability ? observability!.outputs.dataCollectionRuleId : ''
-output prometheusDcrAssociationId string = deployObservability ? observability!.outputs.dataCollectionRuleAssociationId : ''
+output prometheusDcrAssociationId string = deployObservability
+  ? observability!.outputs.dataCollectionRuleAssociationId
+  : ''
 output defaultActionGroupId string = deployActionGroup ? defaultActionGroup!.outputs.actionGroupId : ''
 output defaultActionGroupHasWebhook bool = deployActionGroup ? defaultActionGroup!.outputs.hasWebhookReceiver : false
 output podRestartAlertId string = deployAlerts ? alerts!.outputs.podRestartAlertId : ''
 output http5xxAlertId string = deployAlerts ? alerts!.outputs.http5xxAlertId : ''
 output podFailureAlertId string = deployAlerts ? alerts!.outputs.podFailureAlertId : ''
 output crashLoopOomAlertId string = deployAlerts ? alerts!.outputs.crashLoopOomAlertId : ''
+output sreAgentId string = deploySreAgent ? sreAgent!.outputs.agentId : ''
+output sreAgentPortalUrl string = deploySreAgent ? sreAgent!.outputs.agentPortalUrl : ''
+output sreAgentName string = deploySreAgent ? sreAgent!.outputs.agentName : ''
+output sreAgentManagedIdentityId string = deploySreAgent ? sreAgent!.outputs.managedIdentityId : ''
+output sreAgentManagedIdentityPrincipalId string = deploySreAgent ? sreAgent!.outputs.managedIdentityPrincipalId : ''
